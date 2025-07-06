@@ -6,4 +6,3 @@ pub mod bet;
 pub use store::*; 
 pub use peer_config::*;
 pub use bet_pool::*;
-pub use bet::*;

@@ -21,7 +21,7 @@ use crate::instructions::claim_winnings::{ClaimWinnings, ClaimWinningsParams};
 // MYOAPP_ID=$PROGRAM_ID anchor build 
 declare_id!(anchor_lang::solana_program::pubkey::Pubkey::new_from_array(program_id_from_env!(
     "MYOAPP_ID",
-    "9CtJ2mHpsNMPPCpEsmRTYDhbZTACFpD2pMFFJiT13qfG" // It's not necessary to change the ID here if you are building using environment variable
+    "EzSWvfipsRAQxPspMFm9QVot1jHwAGxKYWtnNi8YFT5R" // It's not necessary to change the ID here if you are building using environment variable
 )));
 
 const LZ_RECEIVE_TYPES_SEED: &[u8] = b"LzReceiveTypes"; // The Executor relies on this exact seed to derive the LzReceiveTypes PDA. Keep it the same.

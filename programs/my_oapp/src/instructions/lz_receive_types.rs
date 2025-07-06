@@ -40,98 +40,110 @@ impl LzReceiveTypes<'_> {
         ];
 
         // Try to decode and dynamically add message-specific accounts
-        if let Ok(betlify_msg) = msg_codec::decode_betlify_message(&params.message) {
-            match betlify_msg {
-                msg_codec::BetlifyMessage::CreatePool { pool_id, .. } => {
-                    let store = ctx.accounts.store.key();
-                    let seeds = [b"betpool", store.as_ref(), &pool_id.to_le_bytes()];
-                    let (bet_pool, _) = Pubkey::find_program_address(&seeds, ctx.program_id);
+        match msg_codec::decode_betlify_message(&params.message) {
+            Ok(betlify_msg) => {
+                match betlify_msg {
+                    msg_codec::BetlifyMessage::CreatePool { pool_id, .. } => {
+                        let store = &ctx.accounts.store;
+                        let store_key = store.key();
+                        let seeds = [b"betpool", store_key.as_ref(), &pool_id.to_le_bytes()];
+                        let (bet_pool, _) = Pubkey::find_program_address(&seeds, ctx.program_id);
 
-                    accounts.extend_from_slice(&[
-                        // 3. bet_pool (to be initialized)
-                        LzAccount {
+                        let bet_pool_key = bet_pool.key();
+                        let bet_seeds = [b"bet", params.sender.as_ref(), bet_pool_key.as_ref()];
+                        let (bet_pda, _) = Pubkey::find_program_address(&bet_seeds, ctx.program_id);
+
+                        accounts.extend_from_slice(&[
+                            // 3. bet_pool (to be initialized)
+                            LzAccount {
+                                pubkey: bet_pool,
+                                is_signer: false,
+                                is_writable: true,
+                            },
+                            // 4. bet (to be initialized)
+                            LzAccount {
+                                pubkey: bet_pda,
+                                is_signer: false,
+                                is_writable: true,
+                            },
+                            // 5. system_program
+                            LzAccount {
+                                pubkey: system_program::ID,
+                                is_signer: false,
+                                is_writable: false,
+                            }
+                        ]);
+                    }
+
+                    msg_codec::BetlifyMessage::PlaceBet { pool_id, .. } => {
+                        let store = ctx.accounts.store.key();
+                        let pool_seeds = [b"betpool", store.as_ref(), &pool_id.to_le_bytes()];
+                        let (bet_pool, _) = Pubkey::find_program_address(&pool_seeds, ctx.program_id);
+
+                        let bet_pool_key = bet_pool.key();
+                        let bet_seeds = [b"bet", params.sender.as_ref(), bet_pool_key.as_ref()];
+                        let (bet_pda, _) = Pubkey::find_program_address(&bet_seeds, ctx.program_id);
+
+                        accounts.extend_from_slice(&[
+                            // 3. bet_pool
+                            LzAccount {
+                                pubkey: bet_pool,
+                                is_signer: false,
+                                is_writable: true,
+                            },
+                            // 4. bet (to be initialized)
+                            LzAccount {
+                                pubkey: bet_pda,
+                                is_signer: false,
+                                is_writable: true,
+                            },
+                            // 5. system_program
+                            LzAccount {
+                                pubkey: system_program::ID,
+                                is_signer: false,
+                                is_writable: false,
+                            },
+                        ]);
+                    }
+
+                    msg_codec::BetlifyMessage::ResolveMarket { pool_id, .. } => {
+                        let store = ctx.accounts.store.key();
+                        let seeds = [b"betpool", store.as_ref(), &pool_id.to_le_bytes()];
+                        let (bet_pool, _) = Pubkey::find_program_address(&seeds, ctx.program_id);
+
+                        accounts.push(LzAccount {
                             pubkey: bet_pool,
                             is_signer: false,
                             is_writable: true,
-                        },
-                        // A dummy bet account to satisfy anchor requirements
-                        LzAccount {
-                            pubkey: Pubkey::default(),
-                            is_signer: false,
-                            is_writable: true,
-                        },
-                        // 4. system_program
-                        LzAccount {
-                            pubkey: system_program::ID,
-                            is_signer: false,
-                            is_writable: false,
-                        }
-                    ]);
+                        });
+                    }
+
+                    msg_codec::BetlifyMessage::ClaimWinnings { pool_id, .. } => {
+                        let store = ctx.accounts.store.key();
+                        let seeds = [b"bet", store.as_ref(), &pool_id.to_le_bytes()];
+                        let (bet_pda, _) = Pubkey::find_program_address(&seeds, ctx.program_id);
+
+                        accounts.extend_from_slice(&[
+                            // bet_pool
+                            LzAccount {
+                                pubkey: bet_pda,
+                                is_signer: false,
+                                is_writable: true,
+                            },
+                            // bet
+                            LzAccount {
+                                pubkey: bet_pda,
+                                is_signer: false,
+                                is_writable: true,
+                            },
+                        ]);
+                    }
                 }
+            }
+            Err(err) => {
+                msg!("Decode error: {:?}", err);
+                return Err(BetlifyError::InvalidMessage.into());
 
-                msg_codec::BetlifyMessage::PlaceBet { pool_id, .. } => {
-                    let store = ctx.accounts.store.key();
-                    let pool_seeds = [b"betpool", store.as_ref(), &pool_id.to_le_bytes()];
-                    let (bet_pool, _) = Pubkey::find_program_address(&pool_seeds, ctx.program_id);
-
-                    let bet_pool_key = bet_pool.key();
-                    let bet_seeds = [b"bet", params.sender.as_ref(), bet_pool_key.as_ref()];
-                    let (bet_pda, _) = Pubkey::find_program_address(&bet_seeds, ctx.program_id);
-
-                    accounts.extend_from_slice(&[
-                        // 3. bet_pool
-                        LzAccount {
-                            pubkey: bet_pool,
-                            is_signer: false,
-                            is_writable: true,
-                        },
-                        // 4. bet (to be initialized)
-                        LzAccount {
-                            pubkey: bet_pda,
-                            is_signer: false,
-                            is_writable: true,
-                        },
-                        // 5. system_program
-                        LzAccount {
-                            pubkey: system_program::ID,
-                            is_signer: false,
-                            is_writable: false,
-                        },
-                    ]);
-                }
-
-                msg_codec::BetlifyMessage::ResolveMarket { pool_id, .. } => {
-                    let store = ctx.accounts.store.key();
-                    let seeds = [b"betpool", store.as_ref(), &pool_id.to_le_bytes()];
-                    let (bet_pool, _) = Pubkey::find_program_address(&seeds, ctx.program_id);
-
-                    accounts.push(LzAccount {
-                        pubkey: bet_pool,
-                        is_signer: false,
-                        is_writable: true,
-                    });
-                }
-
-                msg_codec::BetlifyMessage::ClaimWinnings { pool_id, .. } => {
-                    let store = ctx.accounts.store.key();
-                    let seeds = [b"bet", store.as_ref(), &pool_id.to_le_bytes()];
-                    let (bet_pda, _) = Pubkey::find_program_address(&seeds, ctx.program_id);
-
-                    accounts.extend_from_slice(&[
-                        // bet_pool
-                        LzAccount {
-                            pubkey: bet_pda,
-                            is_signer: false,
-                            is_writable: true,
-                        },
-                        // bet
-                        LzAccount {
-                            pubkey: bet_pda,
-                            is_signer: false,
-                            is_writable: true,
-                        },
-                    ]);
-                }
             }
         }
 
@@ -148,3 +160,4 @@ impl LzReceiveTypes<'_> {
         Ok(accounts)
     }
 }
+

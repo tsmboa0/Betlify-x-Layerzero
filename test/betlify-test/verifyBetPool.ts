@@ -1,9 +1,9 @@
 import { Connection, PublicKey } from '@solana/web3.js';
-import { Program, AnchorProvider, Idl } from '@project-serum/anchor';
+import { Program, AnchorProvider, Idl, BN } from '@project-serum/anchor';
 import idl from '../../target/idl/my_oapp.json';
 
 const SOLANA_RPC_URL = 'https://api.devnet.solana.com'; // or your testnet endpoint
-const PROGRAM_ID = new PublicKey('F488VcDUsLjNFRBhsiLjbVp88h594X5mM5HpPVUWsy4G');
+const PROGRAM_ID = new PublicKey('9CtJ2mHpsNMPPCpEsmRTYDhbZTACFpD2pMFFJiT13qfG');
 const EVM_SENDER = '0x64772107fC23f7370C90EA0aBd29ee6117B97f77';
 const POOL_ID = 1; // Change to your actual poolId
 
@@ -26,18 +26,59 @@ export async function verifyBetPool() {
   const provider = new AnchorProvider(connection, {} as any, {});
   const program = new Program(idl as Idl, PROGRAM_ID, provider);
 
-  const [betPoolPda] = getBetPoolPda(EVM_SENDER, POOL_ID);
-  console.log('BetPool PDA:', betPoolPda.toBase58());
+  const storePda = new PublicKey('EEoxz78vk2ffFozmwrmh5XzguFqjqbTrvKxAiazgAyJ5');
+  const [betPoolPda0] = PublicKey.findProgramAddressSync(
+    [Buffer.from('betpool'), storePda.toBuffer() , new BN(0).toArrayLike(Buffer, 'le', 8)],
+    PROGRAM_ID
+  );
+  const [betPoolPda1] = PublicKey.findProgramAddressSync(
+    [Buffer.from('betpool'), storePda.toBuffer() , new BN(1).toArrayLike(Buffer, 'le', 8)],
+    PROGRAM_ID
+  );
+  console.log('Store PDA:', storePda.toBase58());
+  console.log('BetPool PDA 0:', betPoolPda0.toBase58());
+  console.log('BetPool PDA 1:', betPoolPda1.toBase58());
 
   try {
-    const betPool = await program.account.betPool.fetch(betPoolPda);
-    console.log('BetPool data:', betPool);
+    const store = await program.account.store.fetch(storePda);
+    console.log('Store data:', JSON.stringify(store, null, 2));
   } catch (e) {
     console.error('Could not fetch BetPool:', e);
   }
 }
 
+async function fetchLzReceiveTypes() {
+  const connection = new Connection(SOLANA_RPC_URL);
+  const provider = new AnchorProvider(connection, {} as any, {});
+  const program = new Program(idl as Idl, PROGRAM_ID, provider);
+
+  const storePda = new PublicKey('EEoxz78vk2ffFozmwrmh5XzguFqjqbTrvKxAiazgAyJ5');
+
+  const message = Buffer.from([0, 11, 0, 0, 0, 99, 115, 118, 100, 99, 97, 120, 99, 115, 99, 120, 2, 0, 0, 0, 3, 0, 0, 0, 89, 101, 115, 2, 0, 0, 0, 78, 111, 0, 0, 0, 0, 0, 0, 0, 0, 128, 163, 115, 104, 0, 0, 0, 0, 0, 245, 116, 104, 0, 0, 0, 0, 188, 70, 118, 104, 0, 0, 0, 0])
+  const optionsData = '0x';
+  const msgSender = '0x64772107fC23f7370C90EA0aBd29ee6117B97f77'
+  const msgValue = new BN(1000)
+
+  const params = {
+    src_eid: 40168,
+    message,
+    optionsData,
+    msgValue,
+    msgSender,
+  }
+
+  const txn = await program.methods.lzReceiveTypes(params)
+  .accounts({
+    store: storePda
+  })
+  .signers([])
+  .rpc();
+  
+  console.log(`the accounts are : ${JSON.stringify(txn, null, 2)}`)
+}
+
 // If run directly, execute
 if (require.main === module) {
-  verifyBetPool();
+  // verifyBetPool();
+  fetchLzReceiveTypes();
 } 

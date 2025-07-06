@@ -12,7 +12,7 @@ const optimismContract: OmniPointHardhat = {
 
 const solanaContract: OmniPointHardhat = {
     eid: EndpointId.SOLANA_V2_TESTNET,
-    address: 'EEoxz78vk2ffFozmwrmh5XzguFqjqbTrvKxAiazgAyJ5', // NOTE: replace with the oapp account address
+    address: '7zT3rAb8tNAK8mSewyxRz7ubbDtnXEcSaoJnyVyg4f8n', // NOTE: replace with the oapp account address
 }
 
 // For this example's simplicity, we will use the same enforced options values for sending to all chains

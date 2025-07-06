@@ -11,7 +11,7 @@ use oapp::{
 use anchor_lang::solana_program::system_program;
 
 use crate::state::{bet_pool::BetPool, bet::Bet, PoolStatus};
-use crate::{PlaceBetError, ResolveMarketError};
+use crate::{PlaceBetError};
 
 #[derive(Accounts)]
 #[instruction(params: LzReceiveParams)]
@@ -35,7 +35,6 @@ pub struct LzReceive<'info> {
     #[account(init_if_needed, payer = payer, seeds = [b"bet", params.sender.as_ref(), bet_pool.key().as_ref()], bump, space = 8 + Bet::INIT_SPACE)]
     pub bet: Account<'info, Bet>,
 
-    #[account(address = system_program::ID)]
     pub system_program: Program<'info, System>,
 }
 
@@ -112,7 +111,7 @@ impl<'info> LzReceive<'info> {
                         bet.claimed = false;
                     }
 
-                    msg_codec::BetlifyMessage::ResolveMarket { pool_id, winning_option } => {
+                    msg_codec::BetlifyMessage::ResolveMarket { pool_id, .. } => {
                         msg!("Resolving pool {}", pool_id);
 
                         // TODO: Implement resolve market logic
@@ -125,8 +124,9 @@ impl<'info> LzReceive<'info> {
                 }
             }
 
-            Err(_) => {
-                msg!("Invalid message");
+            Err(err) => {
+                msg!("Decode error: {:?}", err);
+                return Err(BetlifyError::InvalidMessage.into());
             }
         }
 
@@ -145,4 +145,5 @@ pub enum BetlifyError {
     #[msg("Invalid option")] InvalidOption,
     #[msg("Missing system program")] MissingSystemProgram,
     #[msg("Missing rent sysvar")] MissingRentSysvar,
+    #[msg("Failed to decode message")] InvalidMessage,
 }

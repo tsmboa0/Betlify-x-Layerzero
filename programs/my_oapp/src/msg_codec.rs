@@ -34,18 +34,6 @@ pub enum MsgCodecError {
     InvalidUtf8,
 }
 
-/// Extract the string length
-fn decode_string_len(buf: &[u8]) -> std::result::Result<usize, MsgCodecError> {
-    // Header not long enough
-    if buf.len() < STRING_OFFSET {
-        return Err(MsgCodecError::InvalidLength);
-    }
-    let mut string_len_bytes = [0u8;32];
-    string_len_bytes.copy_from_slice(&buf[LENGTH_OFFSET..LENGTH_OFFSET+32]);
-    // The length is stored in the last 4 bytes (big endian)
-    Ok(u32::from_be_bytes(string_len_bytes[28..32].try_into().unwrap()) as usize)
-}
-
 // Encode a UTF-8 string into a message format with a 32 byte header
 pub fn encode(string: &str) -> Vec<u8> {
     let string_bytes = string.as_bytes();
@@ -64,31 +52,6 @@ pub fn encode(string: &str) -> Vec<u8> {
     msg
 }
 
-// Decode a message format with a 32 byte header into a UTF-8 string
-// Returns an error if the message is malformed or not valid UTF-8
-pub fn decode(message: &[u8]) -> std::result::Result<String, MsgCodecError> {
-    // Read the declared payload length from the header
-    let string_len = decode_string_len(message)?;
-
-    let start = STRING_OFFSET;
-    // Safely compute end index and check for overflow
-    let end = start
-        .checked_add(string_len)
-        .ok_or(MsgCodecError::InvalidLength)?;
-
-    // Ensure the buffer actually contains the full payload
-    if end > message.len() {
-        return Err(MsgCodecError::BodyTooShort);
-    }
-
-    // Slice out the payload bytes
-    let payload = &message[start..end];
-    // Attempt to convert the bytes into a Rust string
-    match str::from_utf8(payload) {
-        Ok(s) => Ok(s.to_string()),
-        Err(_) => Err(MsgCodecError::InvalidUtf8),
-    }
-}
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, Debug, PartialEq)]
 pub enum BetlifyMessage {

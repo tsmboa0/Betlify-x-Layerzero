@@ -10,55 +10,12 @@ import { BetlifyMsgCodec } from "./libs/BetlifyMsgCodec.sol";
 contract BetlifyEvmAdapter is Ownable, OApp, OAppOptionsType3 {
     constructor(address _endpoint, address _delegate) OApp(_endpoint, _delegate) Ownable(_delegate) {}
 
-    // Create a new prediction market
-    function createPool(
+    // Send a Betlify Action to Solana OApp
+    function sendBetlifyAction(
         uint32 dstEid,
-        string calldata question,
-        string[] calldata options,
-        int64 startTime,
-        int64 lockTime,
-        int64 endTime,
-        uint64 poolId,
+        bytes calldata message,
         bytes calldata optionsData
     ) external payable returns (MessagingReceipt memory receipt) {
-        bytes memory message = BetlifyMsgCodec.encodeCreatePool(question, options, startTime, lockTime, endTime, poolId);
-        bytes memory lzOptions = combineOptions(dstEid, 1, optionsData);
-        receipt = _lzSend(dstEid, message, lzOptions, MessagingFee(msg.value, 0), payable(msg.sender));
-    }
-
-    // Place a bet
-    function placeBet(
-        uint32 dstEid,
-        address authority,
-        uint64 poolId,
-        uint8 option,
-        uint64 amount,
-        bytes calldata optionsData
-    ) external payable returns (MessagingReceipt memory receipt) {
-        bytes memory message = BetlifyMsgCodec.encodePlaceBet(authority, poolId, option, amount);
-        bytes memory lzOptions = combineOptions(dstEid, 1, optionsData);
-        receipt = _lzSend(dstEid, message, lzOptions, MessagingFee(msg.value, 0), payable(msg.sender));
-    }
-
-    // Resolve a market
-    function resolveMarket(
-        uint32 dstEid,
-        uint64 poolId,
-        uint8 winningOption,
-        bytes calldata optionsData
-    ) external payable returns (MessagingReceipt memory receipt) {
-        bytes memory message = BetlifyMsgCodec.encodeResolveMarket(poolId, winningOption);
-        bytes memory lzOptions = combineOptions(dstEid, 1, optionsData);
-        receipt = _lzSend(dstEid, message, lzOptions, MessagingFee(msg.value, 0), payable(msg.sender));
-    }
-
-    // Claim winnings
-    function claimWinnings(
-        uint32 dstEid,
-        uint64 poolId,
-        bytes calldata optionsData
-    ) external payable returns (MessagingReceipt memory receipt) {
-        bytes memory message = BetlifyMsgCodec.encodeClaimWinnings(poolId);
         bytes memory lzOptions = combineOptions(dstEid, 1, optionsData);
         receipt = _lzSend(dstEid, message, lzOptions, MessagingFee(msg.value, 0), payable(msg.sender));
     }
