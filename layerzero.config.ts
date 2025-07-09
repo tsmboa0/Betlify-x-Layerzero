@@ -31,7 +31,7 @@ const SOLANA_ENFORCED_OPTIONS: OAppEnforcedOption[] = [
         msgType: 1,
         optionType: ExecutorOptionType.LZ_RECEIVE,
         gas: 100_000,
-        value: 1_500_000,
+        value: 10_500_000,
     },
 ]
 

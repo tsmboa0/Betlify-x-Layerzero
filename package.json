@@ -21,7 +21,8 @@
   },
   "resolutions": {
     "ethers": "^5.7.2",
-    "hardhat-deploy": "^0.12.1"
+    "hardhat-deploy": "^0.12.1",
+    "@solana/web3.js": "1.95.8"
   },
   "dependencies": {
     "@kinobi-so/nodes": "^0.21.4",

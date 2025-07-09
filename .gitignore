@@ -86,6 +86,10 @@ deployments/*/artifacts
 !pnpm-lock.yaml
 !package-lock.json
 !Cargo.lock
+!frontend/package.json
+!frontend/package-lock.json
+!frontend/tsconfig.json
+!frontend/components.json
 
 # Node.js and TypeScript
 dist

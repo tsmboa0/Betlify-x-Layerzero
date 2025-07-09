@@ -1,111 +1,376 @@
-# Betlify.fun: A No-Code, Cross-Chain Prediction Market on Solana
+# Betlify.fun: Cross-Chain Prediction Markets Builder on Solana
 
-## Overview
+> **Decentralized prediction markets with seamless cross-chain interoperability**
 
-**Betlify.fun** is an innovative, no-code platform that empowers anyone to create, own, and profit from custom prediction markets on the Solana blockchain. Unlike traditional platforms such as Polymarket—where users are restricted to markets curated by a central team—Betlify.fun puts the power in your hands. You can launch markets around any topic or event, invite participation, and earn a share of the pool funds as a market creator.
+Betlify.fun is a no-code prediction market platform that enables anyone to create, participate in, and profit from custom prediction markets. Built on Solana with LayerZero v2 OApp integration, it provides true cross-chain functionality allowing users from any blockchain to participate seamlessly.
 
-But Betlify.fun goes even further: thanks to the integration of [LayerZero v2 OApp](https://layerzero.network/), users from any blockchain network can seamlessly interact with Betlify. Whether you want to create a pool, place a bet, or claim winnings, you can do it all from your native chain. This cross-chain capability is a game-changer for prediction markets, breaking down silos and opening up liquidity and participation from across the blockchain ecosystem.
+[![Watch Demo](assets/betlify.png)](https://youtu.be/sW7ecSF0cFI)
 
----
+## 🎯 Core Concept
 
-## Why Betlify.fun?
+Unlike traditional prediction markets that restrict users to curated markets, Betlify.fun empowers individuals to create markets around any topic or event. Market creators earn a percentage of pool funds, incentivizing high-quality, engaging markets. The platform's cross-chain architecture breaks down blockchain silos, opening up liquidity and participation from across the entire ecosystem.
 
-- **No-Code Market Creation:** Anyone can spin up a prediction market without writing a single line of code.
-- **Decentralized Ownership:** Market creators own their markets and earn a percentage of the pool, incentivizing high-quality, engaging markets.
-- **Unlimited Topics:** No more being limited to a handful of curated markets—create markets around anything that matters to you or your community.
-- **Cross-Chain Participation:** Thanks to LayerZero v2 OApp, users from any supported blockchain can participate, dramatically increasing reach and liquidity.
-- **Open, Permissionless, and Composable:** Built on Solana for speed and low fees, with a vision for open composability and integration with other DeFi and Web3 protocols.
+## 🔄 Cross-Chain Architecture Flow
 
----
+```
+                                    ┌─────────────────┐
+                                    │   Betlify.fun   │
+                                    └─────────┬───────┘
+                                              │
+                                              ▼
+                                    ┌─────────────────┐
+                                    │  User Actions   │
+                                    │ Create Pool, Place Bet, Claim Winnings │
+                                    └─────────┬───────┘
+                                              │
+                                              ▼
+                    ┌─────────────────────────────────────────────────┐
+                    │                                                 │
+                    ▼                                                 ▼
+            ┌─────────────────────┐                         ┌─────────────────────┐
+            │ EVM Users           │                         │ Solana Users        │
+            │ (Ethereum, Polygon, etc.)                     │                     │
+            └─────────┬───────────┘                         └─────────┬───────────┘
+                      │                                                 │
+                      ▼                                                 ▼
+            ┌─────────────────────┐                         ┌─────────────────────┐
+            │ Borsh Serialization │                         │ Betlify Solana      │
+            └─────────┬───────────┘                         │ Program             │
+                      │                                     └─────────────────────┘
+                      ▼
+            ┌─────────────────────┐
+            │ EVM Contract        │
+            │ (BetlifyEvm Adapter)│
+            └─────────┬───────────┘
+                      │
+                      ▼
+            ┌─────────────────────┐
+            │ LayerZero Executor  │
+            └─────────┬───────────┘
+                      │
+                      ▼
+            ┌─────────────────────┐
+            │ Betlify Solana      │
+            │ Program             │
+            └─────────────────────┘
+```
 
-## How LayerZero v2 OApp Supercharges Betlify
+## 🏗️ Technical Architecture Deep Dive
 
-LayerZero is a leading cross-chain messaging protocol, and its v2 OApp (Omnichain Application) framework enables truly seamless interoperability between blockchains. In Betlify.fun, LayerZero v2 OApp is used to:
+### 🦀 Rust/Anchor Smart Contracts
 
-- **Enable Cross-Chain Actions:** Users can create pools, place bets, and claim winnings from any supported chain, not just Solana.
-- **Facilitate Cross-Chain Payouts:** With the planned integration of OFT (Omnichain Fungible Token), winnings and payouts can be sent directly to users on their native chain, removing friction and onboarding barriers.
-- **Expand Market Liquidity:** By opening up Betlify to users and liquidity from all LayerZero-supported chains, markets become deeper and more dynamic.
+The core of Betlify.fun is built with **Rust and the Anchor framework**, providing type-safe, efficient smart contracts on Solana.
 
-This repository demonstrates the foundational integration of LayerZero v2 OApp into Betlify.fun, serving as a blueprint for how cross-chain prediction markets can be built.
+#### Program Structure
+```
+programs/my_oapp/src/
+├── lib.rs                    # Main program entry point
+├── instructions/             # Core betting logic
+│   ├── create_pool.rs        # Market creation with PDA
+│   ├── place_bet.rs          # Bet placement with validation
+│   ├── resolve_market.rs     # Market resolution
+│   ├── claim_winnings.rs     # Payout processing
+│   └── lz_receive.rs         # Cross-chain message handler
+├── state/                    # Account data structures
+│   ├── bet_pool.rs           # Pool state management
+│   ├── bet.rs                # Individual bet tracking
+│   ├── store.rs              # Global program state
+│   └── peer_config.rs        # LayerZero peer configuration
+└── msg_codec.rs              # Anchor serialization/deserialization of BetlifyMessage
+```
 
----
+### 🔐 Program Derived Addresses (PDAs)
 
-## Technical Details
+Betlify.fun leverages **deterministic PDAs** for efficient account management and cross-chain coordination:
 
-- **Solana Smart Contracts:** The core logic for market creation, betting, and settlement is implemented as Solana programs (see `programs/my_oapp/`).
-- **LayerZero OApp Integration:** The contracts and scripts in this repo show how to wire up Solana programs with LayerZero v2 OApp, enabling cross-chain messaging and actions.
-- **OFT (Omnichain Fungible Token):** The next step is to integrate OFT for cross-chain payouts, allowing users to receive winnings on any supported chain.
-- **Frontend:** A modern, user-friendly frontend (in `frontend/client/`) allows users to create and interact with markets, with wallet connection and cross-chain UX.
-- **Deployment Scripts:** Scripts and configs for deploying contracts and setting up LayerZero endpoints are included in `deploy/` and `lib/`.
+#### Core PDA Seeds
+```rust
+// Store account - Global program state
+seeds = [b"Store"]
 
-### Key Directories
+// BetPool accounts - Unique per creator and pool ID
+seeds = [b"betpool", creator.key().as_ref(), &pool_id.to_le_bytes()]
 
-- `programs/my_oapp/` — Solana smart contracts (Anchor framework)
-- `contracts/` — Solidity contracts for EVM compatibility and LayerZero integration
-- `frontend/client/` — React-based frontend for market creation and participation
-- `lib/` — LayerZero client logic, cross-chain scripts, and utilities
-- `deploy/` — Deployment scripts and configuration
+// Bet accounts - Unique per user and pool
+seeds = [b"bet", user.key().as_ref(), bet_pool.key().as_ref()]
 
----
+// Peer configuration - LayerZero cross-chain setup
+seeds = [PEER_SEED, &store.key().to_bytes(), &src_eid.to_be_bytes()]
+```
 
-## Project Status
+#### PDA Benefits
+- **Deterministic Addressing**: Predictable account addresses across chains
+- **Gas Efficiency**: No need to store account addresses in messages
+- **Cross-Chain Coordination**: EVM contracts can derive Solana account addresses
+- **Security**: Prevents account collision and unauthorized access
 
-> **Note:** This project is in its very early stages. The current implementation is a basic demonstration of how LayerZero v2 OApp can be integrated into Betlify.fun. Many features are experimental or under active development. Feedback and contributions are welcome!
+### 📨 Cross-Chain Message Serialization
 
----
+#### Borsh Serialization Architecture
 
-## Getting Started
+Betlify.fun uses **Borsh serialization** for efficient cross-chain message passing:
 
-1. **Clone the repository:**
+```rust
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, Debug, PartialEq)]
+pub enum BetlifyMessage {
+    CreatePool {
+        question: String,
+        options: Vec<String>,
+        pool_id: u64,
+        start_time: i64,
+        lock_time: i64,
+        end_time: i64,
+    },
+    PlaceBet {
+        pool_id: u64,
+        option: u8,
+        amount: u64,
+    },
+    ResolveMarket {
+        pool_id: u64,
+        winning_option: u8,
+    },
+    ClaimWinnings {
+        pool_id: u64,
+    },
+}
+```
+
+#### Frontend Encoding Using Borsh (TypeScript)
+
+To pass structured BetlifyMessage that is compatible with Anchor's Deserialize, we used borsh to encode and serialize messages.
+```typescript
+// Borsh schema for CreatePool message
+const createPoolSchema = borsh.struct([
+  borsh.u8("variant"),
+  borsh.str("question"),
+  borsh.vec(borsh.str(), "options"),
+  borsh.u64("pool_id"),
+  borsh.i64("start_time"),
+  borsh.i64("lock_time"),
+  borsh.i64("end_time"),
+]);
+
+// Encode message for cross-chain transmission
+export function encodeBetlifyMessage(message: BetlifyMessage): Buffer {
+  const buffer = Buffer.alloc(1000);
+  schema.encode(data, buffer);
+  return buffer.subarray(0, schema.getSpan(buffer));
+}
+```
+
+#### Solana Deserialization
+
+Function to handle deserialization in Betlify Solana Program
+```rust
+// Decode incoming cross-chain messages
+match msg_codec::decode_betlify_message(&params.message) {
+    Ok(betlify_msg) => {
+        match betlify_msg {
+            BetlifyMessage::CreatePool { question, options, pool_id, .. } => {
+                // Create new pool with deterministic PDA
+                let bet_pool = &mut ctx.accounts.bet_pool;
+                bet_pool.id = pool_id;
+                bet_pool.question = question;
+                // ... initialize pool state
+            }
+            // ... handle other message types
+        }
+    }
+    Err(err) => return Err(BetlifyError::InvalidMessage.into())
+}
+```
+
+### 🔗 EVM contract logic to send BetlifyMessages
+
+The EVM contract contains one primary method to send Betlify Messages.
+
+#### EVM Side (Solidity)
+```solidity
+// BetlifyEvmAdapter.sol - Cross-chain interface
+contract BetlifyEvmAdapter is Ownable, OApp, OAppOptionsType3 {
+    function sendBetlifyAction(
+        uint32 dstEid,
+        bytes calldata message,
+        bytes calldata optionsData
+    ) external payable returns (MessagingReceipt memory receipt) {
+        bytes memory lzOptions = combineOptions(dstEid, 1, optionsData);
+        receipt = _lzSend(dstEid, message, lzOptions, MessagingFee(msg.value, 0), payable(msg.sender));
+    }
+}
+```
+
+
+### 🎨 Frontend Architecture
+
+**Modern React + TypeScript** frontend with comprehensive cross-chain support:
+
+```
+frontend/client/src/
+├── components/                # Reusable UI components
+│   ├── market-card.tsx        # Market display component
+│   ├── market-carousel.tsx    # Market browsing
+│   ├── wallet-connect-modal.tsx # Multi-chain wallet support
+│   └── ui/                    # Design system components
+├── pages/                     # Main application pages
+│   ├── home.tsx               # Market discovery
+│   ├── create-market.tsx      # Market creation interface
+│   └── bet-details.tsx        # Detailed market view
+├── contexts/                  # State management
+│   └── WalletContext.tsx      # Multi-chain wallet context
+├── hooks/                     # Custom React hooks
+├── lib/                       # Contract interactions
+│   ├── contracts.ts           # Solana program client
+│   ├── encodeBetlifyMessage.ts # Borsh encoding utilities
+│   └── solana-contracts.ts    # Solana-specific utilities
+└── types/                     # TypeScript type definitions
+```
+
+### Deployment details.
+
+- Solana OApp Program ID: EzSWvfipsRAQxPspMFm9QVot1jHwAGxKYWtnNi8YFT5R
+- Solana OApp Address (Store): 7zT3rAb8tNAK8mSewyxRz7ubbDtnXEcSaoJnyVyg4f8n
+- EVM OApp Address: 0x2ED9929e3AA3CAd3553aA90014894300D3Fa224d
+- [LayerZero Scan: ](https://testnet.layerzeroscan.com/address/7zT3rAb8tNAK8mSewyxRz7ubbDtnXEcSaoJnyVyg4f8n) https://testnet.layerzeroscan.com/address/7zT3rAb8tNAK8mSewyxRz7ubbDtnXEcSaoJnyVyg4f8n
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js 18+
+- Rust 1.70+
+- Solana CLI
+- Anchor CLI
+
+### Quick Start
+
+1. **Clone and setup**
    ```bash
    git clone https://github.com/yourusername/betlify.fun.git
    cd betlify.fun
    ```
-2. **Install dependencies:**
-   - For Solana programs: see `programs/my_oapp/`
-   - For frontend: see `frontend/client/`
-   - For deployment and scripts: see `lib/` and `deploy/`
-3. **Configure LayerZero endpoints:**
-   - Update configuration files in `lib/` and `deploy/` as needed for your environment.
-4. **Run the frontend:**
+
+2. **Build Solana programs**
+   ```bash
+   cd programs/my_oapp
+   cargo build
+   anchor build
+   ```
+
+3. **Deploy contracts**
+   ```bash
+   # Deploy Solana program
+   anchor deploy
+   
+   # Deploy EVM adapter
+   npx hardhat deploy --network <network>
+   ```
+
+4. **Configure LayerZero endpoints**
+   ```bash
+   # Update lib/config.ts with your LayerZero endpoints
+   ```
+
+5. **Run frontend**
    ```bash
    cd frontend/client
    npm install
    npm run dev
    ```
-5. **Deploy contracts:**
-   - See scripts in `deploy/` and `lib/scripts/` for deployment instructions.
 
----
+## 🔧 Development
 
-## Roadmap
+### Building and Testing
+```bash
+# Solana program development
+anchor build
+anchor test
 
-- [ ] Full OFT integration for cross-chain payouts
-- [ ] Advanced market resolution and dispute mechanisms
-- [ ] Enhanced frontend UX for cross-chain actions
-- [ ] Community governance and market curation
+# EVM contract testing
+npx hardhat test
+
+# Cross-chain integration testing
+cd test/betlify-test
+npm run test:cross-chain
+```
+
+### Key Development Commands
+```bash
+# Verifiable build with environment variable
+anchor build -v -e MYOAPP_ID=<OAPP_PROGRAM_ID>
+
+# Generate client SDK
+cd lib && npm run generate
+
+# Deploy to specific networks
+npx hardhat deploy --network optimism-testnet
+npx hardhat deploy --network solana-testnet
+```
+
+## 📊 Project Structure
+
+```
+betlify.fun/
+├── programs/my_oapp/          # 🦀 Solana smart contracts (Rust/Anchor)
+│   ├── src/
+│   │   ├── instructions/      # Core betting logic
+│   │   ├── state/             # Account data structures
+│   │   ├── msg_codec.rs       # Borsh serialization
+│   │   └── lib.rs             # Program entry point
+│   └── Cargo.toml
+├── contracts/                 # 🔗 EVM contracts (Solidity)
+│   ├── BetlifyOApp.sol        # Cross-chain adapter
+│   └── libs/BetlifyMsgCodec.sol # Message encoding
+├── frontend/client/           # 🎨 React frontend
+├── lib/                       # 📚 SDK and utilities
+│   ├── client/                # Generated Solana client
+│   └── scripts/               # Deployment and testing
+├── deploy/                    # 🚀 Deployment scripts
+├── test/                      # 🧪 Test suites
+└── docs/                      # 📖 Documentation
+```
+
+## 🗺️ Roadmap
+
+### Phase 1: Core Platform ✅
+- [x] Solana smart contracts with PDA architecture
+- [x] LayerZero v2 OApp integration
+- [x] Borsh cross-chain message serialization
+- [x] Basic frontend interface
+
+### Phase 2: Enhanced Features 🚧
+- [ ] OFT (Omnichain Fungible Token) integration for cross-chain payouts
+- [ ] Advanced market resolution mechanisms
+- [ ] Dispute resolution system
+- [ ] Community governance features
+
+### Phase 3: Ecosystem Growth 📈
 - [ ] Open API for third-party integrations
+- [ ] Mobile app development
+- [ ] Advanced analytics dashboard
+- [ ] Institutional features
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+
+### Development Guidelines
+- Follow Rust/Anchor best practices for Solana programs
+- Use TypeScript for frontend development
+- Write comprehensive tests for all new features
+- Document your code and APIs
+- Ensure cross-chain compatibility
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgements
+
+- **[LayerZero](https://layerzero.network/)** - Cross-chain messaging infrastructure
+- **[Anchor](https://www.anchor-lang.com/)** - Solana smart contract framework
+- **[Solana](https://solana.com/)** - High-performance blockchain platform
+- **[Borsh](https://borsh.io/)** - Binary serialization format
 
 ---
 
-## Contributing
-
-We welcome contributions! Please open issues or pull requests for bugs, features, or ideas. For major changes, please open an issue first to discuss what you would like to change.
-
----
-
-## License
-
-This project is licensed under the MIT License.
-
----
-
-## Acknowledgements
-
-- [LayerZero](https://layerzero.network/) for cross-chain messaging infrastructure
-- [Anchor](https://www.anchor-lang.com/) for Solana smart contract development
-- [Solana](https://solana.com/) for a fast, scalable blockchain
-
----
-
-**Betlify.fun — Own the market. Predict the future.**
+**Betlify.fun — Own the market. Predict the future. From any chain.**

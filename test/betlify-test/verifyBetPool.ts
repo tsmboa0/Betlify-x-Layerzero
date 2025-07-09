@@ -1,11 +1,9 @@
 import { Connection, PublicKey } from '@solana/web3.js';
 import { Program, AnchorProvider, Idl, BN } from '@project-serum/anchor';
-import idl from '../../target/idl/my_oapp.json';
+import idl from '../../target/idl/my_oapp.json'; 
 
 const SOLANA_RPC_URL = 'https://api.devnet.solana.com'; // or your testnet endpoint
 const PROGRAM_ID = new PublicKey('9CtJ2mHpsNMPPCpEsmRTYDhbZTACFpD2pMFFJiT13qfG');
-const EVM_SENDER = '0x64772107fC23f7370C90EA0aBd29ee6117B97f77';
-const POOL_ID = 1; // Change to your actual poolId
 
 // Correct PDA derivation (strip 0x and use hex encoding)
 function getBetPoolPda(creator: string, poolId: number): [PublicKey, number] {
@@ -26,22 +24,16 @@ export async function verifyBetPool() {
   const provider = new AnchorProvider(connection, {} as any, {});
   const program = new Program(idl as Idl, PROGRAM_ID, provider);
 
-  const storePda = new PublicKey('EEoxz78vk2ffFozmwrmh5XzguFqjqbTrvKxAiazgAyJ5');
-  const [betPoolPda0] = PublicKey.findProgramAddressSync(
-    [Buffer.from('betpool'), storePda.toBuffer() , new BN(0).toArrayLike(Buffer, 'le', 8)],
-    PROGRAM_ID
-  );
-  const [betPoolPda1] = PublicKey.findProgramAddressSync(
-    [Buffer.from('betpool'), storePda.toBuffer() , new BN(1).toArrayLike(Buffer, 'le', 8)],
-    PROGRAM_ID
-  );
+  const storePda = new PublicKey('7zT3rAb8tNAK8mSewyxRz7ubbDtnXEcSaoJnyVyg4f8n');
+  const poolPda = new PublicKey('GR3kGrt3n7e5DP1sd7zoKnDyAkmt9xj8vrjoFZwtLM3f');
   console.log('Store PDA:', storePda.toBase58());
-  console.log('BetPool PDA 0:', betPoolPda0.toBase58());
-  console.log('BetPool PDA 1:', betPoolPda1.toBase58());
+  console.log('BetPool PDA:', poolPda.toBase58());
 
   try {
     const store = await program.account.store.fetch(storePda);
+    const pool = await program.account.betPool.fetch(poolPda);  
     console.log('Store data:', JSON.stringify(store, null, 2));
+    console.log('Pool data:', JSON.stringify(pool, null, 2));
   } catch (e) {
     console.error('Could not fetch BetPool:', e);
   }
@@ -79,6 +71,6 @@ async function fetchLzReceiveTypes() {
 
 // If run directly, execute
 if (require.main === module) {
-  // verifyBetPool();
-  fetchLzReceiveTypes();
+  verifyBetPool();
+  // fetchLzReceiveTypes();
 } 
