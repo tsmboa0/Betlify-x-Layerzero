@@ -1,0 +1,869 @@
+{
+  "version": "0.1.0",
+  "name": "my_oapp",
+  "instructions": [
+    {
+      "name": "initStore",
+      "accounts": [
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "store",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "lzReceiveTypesAccounts",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": "InitStoreParams"
+          }
+        }
+      ]
+    },
+    {
+      "name": "setPeerConfig",
+      "accounts": [
+        {
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true,
+          "docs": [
+            "Admin of the OApp store"
+          ]
+        },
+        {
+          "name": "peer",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Peer configuration PDA for a specific remote chain"
+          ]
+        },
+        {
+          "name": "store",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Store PDA of this OApp"
+          ]
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": "SetPeerConfigParams"
+          }
+        }
+      ]
+    },
+    {
+      "name": "quoteSend",
+      "accounts": [
+        {
+          "name": "store",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "peer",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "endpoint",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": "QuoteSendParams"
+          }
+        }
+      ],
+      "returns": {
+        "defined": "MessagingFee"
+      }
+    },
+    {
+      "name": "send",
+      "accounts": [
+        {
+          "name": "peer",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Configuration for the destination chain. Holds the peer address and any",
+            "enforced messaging options."
+          ]
+        },
+        {
+          "name": "store",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "OApp Store PDA that signs the send instruction"
+          ]
+        },
+        {
+          "name": "endpoint",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": "SendMessageParams"
+          }
+        }
+      ]
+    },
+    {
+      "name": "lzReceive",
+      "accounts": [
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "peer",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "store",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "betPool",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "bet",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": "LzReceiveParams"
+          }
+        }
+      ]
+    },
+    {
+      "name": "lzReceiveTypes",
+      "accounts": [
+        {
+          "name": "store",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": "LzReceiveParams"
+          }
+        }
+      ],
+      "returns": {
+        "vec": {
+          "defined": "LzAccount"
+        }
+      }
+    },
+    {
+      "name": "createPool",
+      "accounts": [
+        {
+          "name": "betPool",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "creator",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "store",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": "CreatePoolParams"
+          }
+        },
+        {
+          "name": "poolId",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "placeBet",
+      "accounts": [
+        {
+          "name": "betPool",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "bet",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "user",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": "PlaceBetParams"
+          }
+        }
+      ]
+    },
+    {
+      "name": "resolveMarket",
+      "accounts": [
+        {
+          "name": "betPool",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "creator",
+          "isMut": false,
+          "isSigner": true
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": "ResolveMarketParams"
+          }
+        }
+      ]
+    },
+    {
+      "name": "claimWinnings",
+      "accounts": [
+        {
+          "name": "betPool",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "bet",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "user",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": "ClaimWinningsParams"
+          }
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "EndpointSettings",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "eid",
+            "type": "u32"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "admin",
+            "type": "publicKey"
+          },
+          {
+            "name": "lzTokenMint",
+            "type": {
+              "option": "publicKey"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Bet",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "publicKey"
+          },
+          {
+            "name": "user",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "pool",
+            "type": "publicKey"
+          },
+          {
+            "name": "option",
+            "type": "u8"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "claimed",
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "BetPool",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "id",
+            "type": "u64"
+          },
+          {
+            "name": "creator",
+            "type": "publicKey"
+          },
+          {
+            "name": "question",
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "type": {
+              "defined": "PoolStatus"
+            }
+          },
+          {
+            "name": "winningOption",
+            "type": "u8"
+          },
+          {
+            "name": "startTime",
+            "type": "i64"
+          },
+          {
+            "name": "lockTime",
+            "type": "i64"
+          },
+          {
+            "name": "endTime",
+            "type": "i64"
+          },
+          {
+            "name": "uniqueBettors",
+            "type": "u64"
+          },
+          {
+            "name": "poolAmount",
+            "type": "u64"
+          },
+          {
+            "name": "optionAmounts",
+            "type": {
+              "vec": "u64"
+            }
+          },
+          {
+            "name": "isResultSet",
+            "type": "bool"
+          },
+          {
+            "name": "result",
+            "type": "u8"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PeerConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "peerAddress",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "enforcedOptions",
+            "type": {
+              "defined": "EnforcedOptions"
+            }
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "LzReceiveTypesAccounts",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "store",
+            "type": "publicKey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Store",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "type": "publicKey"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "endpointProgram",
+            "type": "publicKey"
+          },
+          {
+            "name": "poolsCount",
+            "type": "u64"
+          }
+        ]
+      }
+    }
+  ],
+  "types": [
+    {
+      "name": "MessagingFee",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "nativeFee",
+            "type": "u64"
+          },
+          {
+            "name": "lzTokenFee",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ClaimWinningsParams",
+      "type": {
+        "kind": "struct",
+        "fields": []
+      }
+    },
+    {
+      "name": "CreatePoolParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "question",
+            "type": "string"
+          },
+          {
+            "name": "options",
+            "type": {
+              "vec": "string"
+            }
+          },
+          {
+            "name": "startTime",
+            "type": "i64"
+          },
+          {
+            "name": "lockTime",
+            "type": "i64"
+          },
+          {
+            "name": "endTime",
+            "type": "i64"
+          },
+          {
+            "name": "poolId",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "InitStoreParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "type": "publicKey"
+          },
+          {
+            "name": "endpoint",
+            "type": "publicKey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PlaceBetParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "user",
+            "type": "publicKey"
+          },
+          {
+            "name": "option",
+            "type": "u8"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "QuoteSendParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "dstEid",
+            "type": "u32"
+          },
+          {
+            "name": "receiver",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "message",
+            "type": "string"
+          },
+          {
+            "name": "options",
+            "type": "bytes"
+          },
+          {
+            "name": "payInLzToken",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ResolveMarketParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "winningOption",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SendMessageParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "dstEid",
+            "type": "u32"
+          },
+          {
+            "name": "message",
+            "type": "string"
+          },
+          {
+            "name": "options",
+            "type": "bytes"
+          },
+          {
+            "name": "nativeFee",
+            "type": "u64"
+          },
+          {
+            "name": "lzTokenFee",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PeerConfigParam",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "PeerAddress",
+            "fields": [
+              {
+                "array": [
+                  "u8",
+                  32
+                ]
+              }
+            ]
+          },
+          {
+            "name": "EnforcedOptions",
+            "fields": [
+              {
+                "name": "send",
+                "type": "bytes"
+              },
+              {
+                "name": "sendAndCall",
+                "type": "bytes"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "SetPeerConfigParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "remoteEid",
+            "type": "u32"
+          },
+          {
+            "name": "config",
+            "type": {
+              "defined": "PeerConfigParam"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "PoolStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Open"
+          },
+          {
+            "name": "Closed"
+          },
+          {
+            "name": "Resolved"
+          }
+        ]
+      }
+    },
+    {
+      "name": "EnforcedOptions",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "send",
+            "type": "bytes"
+          },
+          {
+            "name": "sendAndCall",
+            "type": "bytes"
+          }
+        ]
+      }
+    },
+    {
+      "name": "LzReceiveParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "srcEid",
+            "type": "u32"
+          },
+          {
+            "name": "sender",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "nonce",
+            "type": "u64"
+          },
+          {
+            "name": "guid",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "message",
+            "type": "bytes"
+          },
+          {
+            "name": "extraData",
+            "type": "bytes"
+          }
+        ]
+      }
+    },
+    {
+      "name": "LzAccount",
+      "docs": [
+        "same to anchor_lang::prelude::AccountMeta"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pubkey",
+            "type": "publicKey"
+          },
+          {
+            "name": "isSigner",
+            "type": "bool"
+          },
+          {
+            "name": "isWritable",
+            "type": "bool"
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "InvalidLength"
+    },
+    {
+      "code": 6001,
+      "name": "BodyTooShort"
+    },
+    {
+      "code": 6002,
+      "name": "InvalidUtf8"
+    }
+  ]
+}

@@ -1,0 +1,213 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(20, 14.3%, 4.1%);
+  --muted: hsl(60, 4.8%, 95.9%);
+  --muted-foreground: hsl(25, 5.3%, 44.7%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(20, 14.3%, 4.1%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(20, 14.3%, 4.1%);
+  --border: hsl(20, 5.9%, 90%);
+  --input: hsl(20, 5.9%, 90%);
+  --primary: hsl(207, 90%, 54%);
+  --primary-foreground: hsl(211, 100%, 99%);
+  --secondary: hsl(60, 4.8%, 95.9%);
+  --secondary-foreground: hsl(24, 9.8%, 10%);
+  --accent: hsl(60, 4.8%, 95.9%);
+  --accent-foreground: hsl(24, 9.8%, 10%);
+  --destructive: hsl(0, 84.2%, 60.2%);
+  --destructive-foreground: hsl(60, 9.1%, 97.8%);
+  --ring: hsl(20, 14.3%, 4.1%);
+  --radius: 0.5rem;
+
+  /* Solana-inspired colors */
+  --solana-purple: hsl(264, 100%, 62%);
+  --solana-green: hsl(168, 85%, 42%);
+  --solana-dark: hsl(0, 0%, 4%);
+  --solana-gray: hsl(0, 0%, 10%);
+}
+
+.dark {
+  --background: hsl(240, 10%, 3.9%);
+  --foreground: hsl(0, 0%, 98%);
+  --muted: hsl(240, 3.7%, 15.9%);
+  --muted-foreground: hsl(240, 5%, 64.9%);
+  --popover: hsl(240, 10%, 3.9%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --card: hsl(240, 10%, 3.9%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --border: hsl(240, 3.7%, 15.9%);
+  --input: hsl(240, 3.7%, 15.9%);
+  --primary: hsl(207, 90%, 54%);
+  --primary-foreground: hsl(211, 100%, 99%);
+  --secondary: hsl(240, 3.7%, 15.9%);
+  --secondary-foreground: hsl(0, 0%, 98%);
+  --accent: hsl(240, 3.7%, 15.9%);
+  --accent-foreground: hsl(0, 0%, 98%);
+  --destructive: hsl(0, 62.8%, 30.6%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(240, 4.9%, 83.9%);
+  --radius: 0.5rem;
+
+  /* Dark theme Solana colors */
+  --solana-purple: hsl(264, 100%, 62%);
+  --solana-green: hsl(168, 85%, 42%);
+  --solana-dark: hsl(0, 0%, 4%);
+  --solana-gray: hsl(0, 0%, 10%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    background: var(--solana-dark);
+    color: hsl(0, 0%, 98%);
+  }
+
+  html:not(.dark) body {
+    background: hsl(248, 24%, 98%);
+    color: hsl(20, 14.3%, 4.1%);
+  }
+}
+
+@layer components {
+  .gradient-solana {
+    background: linear-gradient(135deg, var(--solana-purple) 0%, var(--solana-green) 100%);
+  }
+
+  .gradient-purple {
+    background: linear-gradient(135deg, var(--solana-purple) 0%, hsl(252, 83%, 57%) 100%);
+  }
+
+  .gradient-green {
+    background: linear-gradient(135deg, var(--solana-green) 0%, hsl(162, 63%, 41%) 100%);
+  }
+
+  .bg-solana-dark {
+    background-color: var(--solana-dark);
+  }
+
+  .bg-solana-gray {
+    background-color: var(--solana-gray);
+  }
+
+  .text-solana-purple {
+    color: var(--solana-purple);
+  }
+
+  .text-solana-green {
+    color: var(--solana-green);
+  }
+
+  .border-solana-purple {
+    border-color: var(--solana-purple);
+  }
+
+  .border-solana-green {
+    border-color: var(--solana-green);
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .glass-effect {
+    backdrop-filter: blur(12px);
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .dark .glass-effect {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Smooth transitions for all interactive elements */
+* {
+  transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* Light theme specific overrides */
+html:not(.dark) {
+  /* Navigation and glass effects */
+  .glass-effect {
+    background: rgba(255, 255, 255, 0.9) !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  }
+  
+  /* Background overrides */
+  .bg-solana-dark {
+    background: hsl(248, 24%, 98%) !important;
+  }
+  
+  .bg-solana-gray {
+    background: hsl(0, 0%, 95%) !important;
+  }
+  
+  .bg-solana-gray\/50 {
+    background: rgba(0, 0, 0, 0.05) !important;
+  }
+  
+  .bg-black\/80 {
+    background: rgba(255, 255, 255, 0.95) !important;
+  }
+  
+  /* Text color overrides */
+  .text-white {
+    color: hsl(20, 14.3%, 4.1%) !important;
+  }
+  
+  .text-gray-300 {
+    color: hsl(25, 5.3%, 44.7%) !important;
+  }
+  
+  .text-gray-400 {
+    color: hsl(25, 5.3%, 55%) !important;
+  }
+  
+  .text-gray-500 {
+    color: hsl(25, 5.3%, 45%) !important;
+  }
+  
+  /* Border overrides */
+  .border-white\/10 {
+    border-color: rgba(0, 0, 0, 0.1) !important;
+  }
+  
+  .border-white\/20 {
+    border-color: rgba(0, 0, 0, 0.15) !important;
+  }
+  
+  /* Specific component overrides */
+  .hover\:text-white:hover {
+    color: hsl(20, 14.3%, 4.1%) !important;
+  }
+  
+  .hover\:bg-white\/10:hover {
+    background: rgba(0, 0, 0, 0.05) !important;
+  }
+  
+  /* Hero section background */
+  .hero-bg {
+    background: linear-gradient(135deg, hsl(248, 24%, 98%) 0%, hsl(245, 20%, 96%) 100%) !important;
+  }
+}
