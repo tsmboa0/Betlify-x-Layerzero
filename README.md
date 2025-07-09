@@ -4,6 +4,8 @@
 
 Betlify.fun is a no-code prediction market platform that enables anyone to create, participate in, and profit from custom prediction markets. Built on Solana with LayerZero v2 OApp integration, it provides true cross-chain functionality allowing users from any blockchain to participate seamlessly.
 
+### Click the image to watch the Demo
+
 [![Watch Demo](assets/betlify.png)](https://youtu.be/sW7ecSF0cFI)
 
 ## 🎯 Core Concept
@@ -79,30 +81,6 @@ programs/my_oapp/src/
 └── msg_codec.rs              # Anchor serialization/deserialization of BetlifyMessage
 ```
 
-### 🔐 Program Derived Addresses (PDAs)
-
-Betlify.fun leverages **deterministic PDAs** for efficient account management and cross-chain coordination:
-
-#### Core PDA Seeds
-```rust
-// Store account - Global program state
-seeds = [b"Store"]
-
-// BetPool accounts - Unique per creator and pool ID
-seeds = [b"betpool", creator.key().as_ref(), &pool_id.to_le_bytes()]
-
-// Bet accounts - Unique per user and pool
-seeds = [b"bet", user.key().as_ref(), bet_pool.key().as_ref()]
-
-// Peer configuration - LayerZero cross-chain setup
-seeds = [PEER_SEED, &store.key().to_bytes(), &src_eid.to_be_bytes()]
-```
-
-#### PDA Benefits
-- **Deterministic Addressing**: Predictable account addresses across chains
-- **Gas Efficiency**: No need to store account addresses in messages
-- **Cross-Chain Coordination**: EVM contracts can derive Solana account addresses
-- **Security**: Prevents account collision and unauthorized access
 
 ### 📨 Cross-Chain Message Serialization
 
@@ -164,6 +142,11 @@ export function encodeBetlifyMessage(message: BetlifyMessage): Buffer {
 Function to handle deserialization in Betlify Solana Program
 ```rust
 // Decode incoming cross-chain messages
+pub fn decode_betlify_message(data: &[u8]) -> std::result::Result<BetlifyMessage,        MsgCodecError> {
+    BetlifyMessage::try_from_slice(data).map_err(|_| MsgCodecError::InvalidUtf8)
+}
+
+// Example using it in the Program's logic
 match msg_codec::decode_betlify_message(&params.message) {
     Ok(betlify_msg) => {
         match betlify_msg {
@@ -180,6 +163,32 @@ match msg_codec::decode_betlify_message(&params.message) {
     Err(err) => return Err(BetlifyError::InvalidMessage.into())
 }
 ```
+
+### 🔐 Program Derived Addresses (PDAs)
+
+Betlify.fun leverages **deterministic PDAs** for efficient account management and cross-chain coordination:
+
+#### Core PDA Seeds
+```rust
+// Store account - Global program state
+seeds = [b"Store"]
+
+// BetPool accounts - Unique per creator and pool ID
+seeds = [b"betpool", creator.key().as_ref(), &pool_id.to_le_bytes()]
+
+// Bet accounts - Unique per user and pool
+seeds = [b"bet", user.key().as_ref(), bet_pool.key().as_ref()]
+
+// Peer configuration - LayerZero cross-chain setup
+seeds = [PEER_SEED, &store.key().to_bytes(), &src_eid.to_be_bytes()]
+```
+
+#### PDA Benefits
+- **Deterministic Addressing**: Predictable account addresses across chains
+- **Gas Efficiency**: No need to store account addresses in messages
+- **Cross-Chain Coordination**: EVM contracts can derive Solana account addresses
+- **Security**: Prevents account collision and unauthorized access
+
 
 ### 🔗 EVM contract logic to send BetlifyMessages
 
