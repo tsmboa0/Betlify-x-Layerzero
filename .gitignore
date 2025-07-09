@@ -68,7 +68,7 @@ deployments/*/artifacts
 # Solana keypairs and wallets
 my_oapp-keypair.json
 buffer-keypair.json
-
+betlify.rs
 !package.json
 !tsconfig.json
 !tailwind.config.js
